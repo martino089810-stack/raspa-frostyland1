@@ -95,7 +95,7 @@
 </head>
 <body>
   <!-- Logo -->
-  <img src="SFFrosty.png" alt="Frostyland" class="logo">
+  <img src="https://github.com/martino089810-stack/raspa-frostyland1/blob/00bb28c723498d9788d5506464e8ad57556c40b8/SFFrosty.png" alt="Frostyland" class="logo">
 
   <div class="container">
     <h1>🎁 Raspa y Gana</h1>
@@ -126,11 +126,10 @@
     const canvas = document.getElementById("lienzo");
     const ctx = canvas.getContext("2d");
 
-    // Premios posibles
     let premios = ["🎉 ¡Ganaste un boli gratis!", "😢 Sigue participando", "🎁 Cupón 2x1"];
     let premio = premios[Math.floor(Math.random() * premios.length)];
+    let raspando = false;
 
-    // Cuando el usuario se registra
     form.addEventListener("submit", function(e) {
       e.preventDefault();
       const tel = document.getElementById("telefono").value;
@@ -143,6 +142,7 @@
       juego.style.display = "block";
 
       // Pintamos premio oculto
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = "#fff";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.font = "20px Arial";
@@ -150,29 +150,39 @@
       ctx.textAlign = "center";
       ctx.fillText(premio, canvas.width / 2, canvas.height / 2);
 
-      // Pintamos capa gris encima
+      // Capa gris
       ctx.globalCompositeOperation = "source-over";
       ctx.fillStyle = "#bbb";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     });
 
-    // Raspar
-    function raspar(e) {
-      let rect = canvas.getBoundingClientRect();
-      let x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
-      let y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
-
+    function raspar(x, y) {
       ctx.globalCompositeOperation = "destination-out";
       ctx.beginPath();
       ctx.arc(x, y, 20, 0, Math.PI * 2, false);
       ctx.fill();
     }
 
-    // Eventos para PC y móvil
-    canvas.addEventListener("mousemove", e => { if (e.buttons > 0) raspar(e); });
-    canvas.addEventListener("touchmove", e => { e.preventDefault(); raspar(e); });
+    canvas.addEventListener("mousedown", () => raspando = true);
+    canvas.addEventListener("mouseup", () => raspando = false);
+    canvas.addEventListener("mousemove", e => {
+      if (raspando) {
+        let rect = canvas.getBoundingClientRect();
+        raspar(e.clientX - rect.left, e.clientY - rect.top);
+      }
+    });
 
-    // Verificar raspado
+    canvas.addEventListener("touchstart", () => raspando = true);
+    canvas.addEventListener("touchend", () => raspando = false);
+    canvas.addEventListener("touchmove", e => {
+      e.preventDefault();
+      if (raspando) {
+        let rect = canvas.getBoundingClientRect();
+        let t = e.touches[0];
+        raspar(t.clientX - rect.left, t.clientY - rect.top);
+      }
+    });
+
     function verificar() {
       if (juego.style.display === "none") return;
       let datos = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -190,6 +200,3 @@
   </script>
 </body>
 </html>
-
-
-
