@@ -3,55 +3,160 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Raspa y Gana 🎉</title>
+  <title>Raspa y Gana | Frostyland 🎉</title>
   <style>
     body {
       margin: 0;
-      background: #f4f4f4;
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #00aaff, #0066cc);
       display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      font-family: Arial, sans-serif;
       flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      color: #fff;
+      text-align: center;
     }
-    h1 { margin-bottom: 10px; }
+
+    .logo {
+      width: 120px;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2rem;
+      font-weight: bold;
+    }
+
+    .container {
+      background: #ffffffdd;
+      color: #333;
+      padding: 20px;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      max-width: 400px;
+      width: 90%;
+    }
+
+    .card {
+      background: #0077ff;
+      color: #fff;
+      padding: 15px;
+      border-radius: 15px;
+      margin-bottom: 15px;
+    }
+
     canvas {
-      border: 2px solid #333;
+      display: block;
+      margin: 10px auto;
       border-radius: 12px;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
       touch-action: none; /* Para móviles */
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    input {
+      padding: 12px;
+      border: 2px solid #0077ff;
+      border-radius: 10px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 12px;
+      background: #0077ff;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #005fcc;
+    }
+
+    #mensaje {
+      font-size: 18px;
+      margin-top: 15px;
+      font-weight: bold;
+      color: #0077ff;
     }
   </style>
 </head>
 <body>
-  <h1>🎁 Raspa y Gana</h1>
-  <p>¡Descubre si ganaste un premio!</p>
-  <canvas id="lienzo" width="300" height="200"></canvas>
-  <p id="mensaje"></p>
+  <!-- Logo -->
+  <img src="https://i.ibb.co/pf9Szx9/frostyland-logo.png" alt="Frostyland" class="logo">
+
+  <div class="container">
+    <h1>🎁 Raspa y Gana</h1>
+    <p>Ingresa tus datos para jugar.<br>¡Puedes raspar una vez!</p>
+
+    <!-- Formulario -->
+    <form id="registro">
+      <input type="text" id="nombre" placeholder="Nombre" required>
+      <input type="text" id="apellido" placeholder="Apellido" required>
+      <input type="tel" id="telefono" placeholder="Teléfono (10 dígitos)" pattern="[0-9]{10}" required>
+      <button type="submit">¡JUGUEMOS!</button>
+    </form>
+
+    <!-- Juego oculto al inicio -->
+    <div id="juego" style="display:none;">
+      <div class="card">
+        <h2>Raspa aquí 👇</h2>
+        <canvas id="lienzo" width="300" height="150"></canvas>
+      </div>
+      <p id="mensaje"></p>
+    </div>
+  </div>
 
   <script>
+    const form = document.getElementById("registro");
+    const juego = document.getElementById("juego");
+    const mensaje = document.getElementById("mensaje");
     const canvas = document.getElementById("lienzo");
     const ctx = canvas.getContext("2d");
-    const mensaje = document.getElementById("mensaje");
 
-    // Fondo con premio aleatorio
+    // Premios posibles
     let premios = ["🎉 ¡Ganaste un boli gratis!", "😢 Sigue participando", "🎁 Cupón 2x1"];
     let premio = premios[Math.floor(Math.random() * premios.length)];
 
-    // Pintamos el fondo con el premio
-    ctx.fillStyle = "#fff";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.font = "20px Arial";
-    ctx.fillStyle = "#333";
-    ctx.textAlign = "center";
-    ctx.fillText(premio, canvas.width / 2, canvas.height / 2);
+    // Cuando el usuario se registra
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+      const tel = document.getElementById("telefono").value;
+      if (!/^[0-9]{10}$/.test(tel)) {
+        alert("El teléfono debe tener 10 dígitos.");
+        return;
+      }
 
-    // Capa gris para raspar
-    ctx.globalCompositeOperation = "source-over";
-    ctx.fillStyle = "#888";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+      form.style.display = "none";
+      juego.style.display = "block";
 
-    // Función para raspar
+      // Pintamos premio oculto
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.font = "20px Arial";
+      ctx.fillStyle = "#333";
+      ctx.textAlign = "center";
+      ctx.fillText(premio, canvas.width / 2, canvas.height / 2);
+
+      // Pintamos capa gris encima
+      ctx.globalCompositeOperation = "source-over";
+      ctx.fillStyle = "#bbb";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    });
+
+    // Raspar
     function raspar(e) {
       let rect = canvas.getBoundingClientRect();
       let x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
@@ -63,12 +168,13 @@
       ctx.fill();
     }
 
-    // Eventos para PC y móviles
+    // Eventos para PC y móvil
     canvas.addEventListener("mousemove", e => { if (e.buttons > 0) raspar(e); });
     canvas.addEventListener("touchmove", e => { e.preventDefault(); raspar(e); });
 
-    // Mostrar mensaje cuando el jugador raspe mucho
+    // Verificar raspado
     function verificar() {
+      if (juego.style.display === "none") return;
       let datos = ctx.getImageData(0, 0, canvas.width, canvas.height);
       let transparentes = 0;
       for (let i = 3; i < datos.data.length; i += 4) {
@@ -76,11 +182,10 @@
       }
       let porcentaje = transparentes / (canvas.width * canvas.height) * 100;
 
-      if (porcentaje > 40) {
+      if (porcentaje > 40 && mensaje.innerText === "") {
         mensaje.innerText = "Resultado: " + premio;
       }
     }
-
     setInterval(verificar, 1000);
   </script>
 </body>
