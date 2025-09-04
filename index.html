@@ -3,213 +3,139 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Raspa y Gana | Frostyland 🎉</title>
+  <title>Raspa y Gana - Frostyland</title>
   <style>
     body {
-      margin: 0;
-      font-family: 'Arial', sans-serif;
-      background: linear-gradient(135deg, #00aaff, #0066cc);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      color: #fff;
       text-align: center;
+      background: #f8f8f8;
+      font-family: Arial, sans-serif;
     }
-
-    .logo {
-      width: 120px;
-      margin-bottom: 10px;
-    }
-
-    .container {
-      background: #ffffffdd;
+    h1 {
       color: #333;
-      padding: 20px;
-      border-radius: 20px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-      max-width: 400px;
-      width: 90%;
     }
-
-    .card {
-      background: #0077ff;
-      color: #fff;
-      padding: 15px;
-      border-radius: 15px;
-      margin-bottom: 15px;
-    }
-
-    canvas {
-      display: block;
-      margin: 10px auto;
-      border-radius: 12px;
-      box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
-      touch-action: none;
-      background: white;
-    }
-
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    input, button {
-      padding: 12px;
-      border-radius: 10px;
-      font-size: 16px;
-    }
-
-    input {
-      border: 2px solid #0077ff;
-    }
-
-    button {
-      font-weight: bold;
+    #jugar {
+      padding: 15px 30px;
+      font-size: 20px;
       border: none;
-      background: #0077ff;
+      border-radius: 10px;
+      background: #ff4081;
       color: white;
       cursor: pointer;
-      transition: 0.3s;
+      margin-bottom: 20px;
     }
-
-    button:hover {
-      background: #005fcc;
-    }
-
-    #mensaje {
-      font-size: 18px;
-      margin-top: 15px;
+    #jugar.dorado {
+      background: gold;
+      color: black;
       font-weight: bold;
-      color: #0077ff;
     }
-
-    .premio-logo {
-      width: 60px;
-      display: block;
-      margin: 0 auto 10px auto;
+    #raspado {
+      position: relative;
+      display: inline-block;
+    }
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    #premio {
+      width: 300px;
+      height: 200px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: white;
+      border: 2px solid #ccc;
+      border-radius: 15px;
+      margin: auto;
+      position: relative;
+      z-index: -1;
+    }
+    #premio img {
+      max-width: 100px;
+      margin-bottom: 10px;
+    }
+    #premio p {
+      font-size: 20px;
+      font-weight: bold;
+      color: black;
     }
   </style>
 </head>
 <body>
-  <!-- Logo Frostyland -->
-  <img src="https://raw.githubusercontent.com/martino089810-stack/raspa-frostyland1/main/SFFrosty.png" alt="Frostyland" class="logo">
+  <h1>🎉 Raspa y Gana Frostyland 🎉</h1>
+  <button id="jugar">JUGUEMOS</button>
 
-  <div class="container">
-    <h1>🎁 Raspa y Gana</h1>
-    <p>Ingresa tus datos para jugar.<br>¡Puedes raspar una vez!</p>
-
-    <!-- Formulario -->
-    <form id="registro">
-      <input type="text" id="nombre" placeholder="Nombre" required>
-      <input type="text" id="apellido" placeholder="Apellido" required>
-      <input type="tel" id="telefono" placeholder="Teléfono (10 dígitos)" pattern="[0-9]{10}" required>
-      <button type="submit">¡JUGUEMOS!</button>
-    </form>
-
-    <!-- Juego oculto -->
-    <div id="juego" style="display:none;">
-      <div class="card">
-        <h2>Raspa aquí 👇</h2>
-        <canvas id="lienzo" width="300" height="200"></canvas>
-      </div>
-      <div id="mensaje"></div>
-    </div>
+  <div id="raspado">
+    <div id="premio"></div>
+    <canvas id="scratch" width="300" height="200"></canvas>
   </div>
 
   <script>
-    const form = document.getElementById("registro");
-    const juego = document.getElementById("juego");
-    const mensaje = document.getElementById("mensaje");
-    const canvas = document.getElementById("lienzo");
+    const btnJugar = document.getElementById("jugar");
+    const canvas = document.getElementById("scratch");
     const ctx = canvas.getContext("2d");
+    const premioDiv = document.getElementById("premio");
 
-    // Premios
-    let premios = [
-      { tipo: "ganaste", texto: "🎉 ¡Ganaste un boli gratis!" },
-      { tipo: "cupon", texto: "🎁 Cupón 2x1" },
-      { tipo: "nada", texto: "❌ Más suerte para la próxima" }
+    // Lista de premios (puedes poner imágenes tuyas en GitHub o en i.ibb.co)
+    const premios = [
+      { img: "https://i.ibb.co/pf9Szx9/frostyland-logo.png", texto: "¡Ganaste un Boli Gratis!" },
+      { img: "https://i.ibb.co/pf9Szx9/frostyland-logo.png", texto: "¡Descuento del 20%!" },
+      { img: "", texto: "X| Más suerte para la próxima" }
     ];
-    let premio = premios[Math.floor(Math.random() * premios.length)];
 
-    // Imagen del logo Frosty
-    const logo = new Image();
-    logo.src = "https://raw.githubusercontent.com/martino089810-stack/raspa-frostyland1/main/SFFrosty.png";
+    let isDrawing = false;
+    let premio;
 
-    // Registro
-    form.addEventListener("submit", function(e) {
-      e.preventDefault();
-      const tel = document.getElementById("telefono").value;
-      if (!/^[0-9]{10}$/.test(tel)) {
-        alert("El teléfono debe tener 10 dígitos.");
-        return;
-      }
+    btnJugar.addEventListener("click", () => {
+      // Botón se pone dorado
+      btnJugar.classList.add("dorado");
 
-      form.style.display = "none";
-      juego.style.display = "block";
+      // Escoger un premio al azar
+      premio = premios[Math.floor(Math.random() * premios.length)];
 
-      // Pintar premio oculto (debajo)
-      ctx.fillStyle = "#fff";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      if (premio.tipo !== "nada") {
-        ctx.drawImage(logo, canvas.width/2 - 30, 20, 60, 60);
-        ctx.font = "18px Arial";
-        ctx.fillStyle = "#333";
-        ctx.textAlign = "center";
-        ctx.fillText(premio.texto, canvas.width/2, 120);
+      // Mostrar premio (oculto debajo del raspeo)
+      premioDiv.innerHTML = "";
+      if (premio.img) {
+        let imagen = document.createElement("img");
+        imagen.src = premio.img;
+        premioDiv.appendChild(imagen);
       } else {
-        ctx.font = "40px Arial";
-        ctx.fillStyle = "red";
-        ctx.textAlign = "center";
-        ctx.fillText("❌", canvas.width/2, 80);
-        ctx.font = "18px Arial";
-        ctx.fillText(premio.texto, canvas.width/2, 130);
+        let x = document.createElement("p");
+        x.style.fontSize = "40px";
+        x.style.color = "red";
+        x.textContent = "X";
+        premioDiv.appendChild(x);
       }
 
-      // Pintar capa dorada
-      let grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-      grad.addColorStop(0, "#FFD700");
-      grad.addColorStop(1, "#DAA520");
-      ctx.globalCompositeOperation = "source-over";
-      ctx.fillStyle = grad;
+      let texto = document.createElement("p");
+      texto.textContent = premio.texto;
+      premioDiv.appendChild(texto);
+
+      // Cubrir con el "raspado"
+      ctx.fillStyle = "silver";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.globalCompositeOperation = "destination-out";
     });
 
-    // Raspar
+    // Función de raspeo
     function raspar(e) {
-      let rect = canvas.getBoundingClientRect();
-      let x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
-      let y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
-
-      ctx.globalCompositeOperation = "destination-out";
+      if (!isDrawing) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+      const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
       ctx.beginPath();
-      ctx.arc(x, y, 20, 0, Math.PI * 2, false);
+      ctx.arc(x, y, 20, 0, Math.PI * 2);
       ctx.fill();
     }
 
-    // Eventos PC/móvil
-    canvas.addEventListener("mousemove", e => { if (e.buttons > 0) raspar(e); });
-    canvas.addEventListener("touchmove", e => { e.preventDefault(); raspar(e); });
+    canvas.addEventListener("mousedown", () => (isDrawing = true));
+    canvas.addEventListener("mouseup", () => (isDrawing = false));
+    canvas.addEventListener("mousemove", raspar);
 
-    // Mostrar resultado al raspar suficiente
-    function verificar() {
-      if (juego.style.display === "none") return;
-      let datos = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      let transparentes = 0;
-      for (let i = 3; i < datos.data.length; i += 4) {
-        if (datos.data[i] === 0) transparentes++;
-      }
-      let porcentaje = transparentes / (canvas.width * canvas.height) * 100;
-
-      if (porcentaje > 40 && mensaje.innerText === "") {
-        mensaje.innerHTML = `<p style="color:#0077ff; font-size:20px; font-weight:bold;">${premio.texto}</p>`;
-      }
-    }
-    setInterval(verificar, 800);
+    canvas.addEventListener("touchstart", () => (isDrawing = true));
+    canvas.addEventListener("touchend", () => (isDrawing = false));
+    canvas.addEventListener("touchmove", raspar);
   </script>
 </body>
 </html>
